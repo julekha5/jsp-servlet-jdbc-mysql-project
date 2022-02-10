@@ -22,48 +22,66 @@ public class LoginDao {
 	}
 
 	// Retrieve username and password
-	public boolean retrieveUserData() {
+	public String retrieveUserData(UserRegistration userLogin) {
+		
 		try (Connection connection = getConnection()) {
+			String login = "select username = ?, password = ? from users";
 			PreparedStatement preparedStatement = connection
-					.prepareStatement("select * from users where username = ? and password = ?");
+					.prepareStatement(login);
 			{
-				UserLogin userLogin = new UserLogin();
-				preparedStatement.setString(1, userLogin.getUsername());
-				preparedStatement.setString(2, userLogin.getPassword());
+				String userName = userLogin.getUsername();
+				String password = userLogin.getPassword();
+		
+				preparedStatement.setString(1, userName);
+				preparedStatement.setString(2, password);
+				
 				ResultSet resultset = preparedStatement.executeQuery();
-				if (resultset.next())
-					return true;
-				resultset.close();
+				if (resultset.next()) {
+					System.out.println("Login Success");
+				}else {
+					System.out.println("Invalid username or password");
+				}
+					
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return false;
+		return "Invalid username or password";
 	}
 
 	// Insert data into registration form
-	public int insertUser() {
-		int result = 0;
+	public String insertUser(UserRegistration userRegister) {
+
 		try (Connection connection = getConnection()) {
-			PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO users"
-					+ "  (id, firstname, lastname, username, password, email,  phone, address) VALUES "
-					+ " (?, ?, ?, ?, ?,?,?,?);");
+			String insert = "insert into users(firstname,lastname,username,password,email,phone,address)values(?,?,?,?,?,?,?)";
+			PreparedStatement preparedStatement = connection.prepareStatement(insert);
 			{
-				UserRegistration userRegister = new UserRegistration();
-				preparedStatement.setInt(1, 1);
-				preparedStatement.setString(2, userRegister.getFirstname());
-				preparedStatement.setString(3, userRegister.getLastname());
-				preparedStatement.setString(4, userRegister.getUsername());
-				preparedStatement.setString(5, userRegister.getPassword());
-				preparedStatement.setString(6, userRegister.getEmail());
-				preparedStatement.setString(7, userRegister.getPhone());
-				preparedStatement.setString(8, userRegister.getAddress());
+				String firstname = userRegister.getFirstname();
+				String lastname = userRegister.getLastname();
+				String username = userRegister.getUsername();
+				String password = userRegister.getPassword();
+				String email = userRegister.getEmail();
+				String phone = userRegister.getPhone();
+				String address = userRegister.getAddress();
+
+				preparedStatement.setString(1, firstname);
+				preparedStatement.setString(2, lastname);
+				preparedStatement.setString(3, username);
+				preparedStatement.setString(4, password);
+				preparedStatement.setString(5, email);
+				preparedStatement.setString(6, phone);
+				preparedStatement.setString(7, address);
+
 				System.out.println(preparedStatement);
-				result = preparedStatement.executeUpdate();
+				int result = preparedStatement.executeUpdate();
+
+				if (result != 0) {
+					System.out.println("Registered Successfully");
+				}
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return result;
+		return "Success";
 	}
 }
